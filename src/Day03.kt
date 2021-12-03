@@ -3,14 +3,8 @@ import java.util.*
 fun main() {
     val dayNumber = "03"
 
-    fun part1(input: List<String>): Long {
-
-        val bitFieldBreadth = input[0].length
-        val gamma = BitSet(bitFieldBreadth)
-        val epsilon = BitSet(bitFieldBreadth)
-        val threshold = input.size / 2
-        val setBitCounterByIndex = IntArray(bitFieldBreadth)
-
+    fun findMostCommonBitPerPosition(input: List<String>): IntArray {
+        val setBitCounterByIndex = IntArray(input[0].length)
         input.forEach {
             it.forEachIndexed { index, c: Char ->
                 if (c == '1') {
@@ -18,6 +12,17 @@ fun main() {
                 }
             }
         }
+        return setBitCounterByIndex
+    }
+
+    fun part1(input: List<String>): Long {
+
+        val bitFieldBreadth = input[0].length
+        val gamma = BitSet(bitFieldBreadth)
+        val epsilon = BitSet(bitFieldBreadth)
+        val threshold = input.size / 2
+
+        val setBitCounterByIndex = findMostCommonBitPerPosition(input)
 
         setBitCounterByIndex.forEachIndexed { index, i ->
             if (i > threshold) {
