@@ -12,20 +12,42 @@ fun main() {
             }
         }
         draws.forEach { draw ->
-            bingoCards.forEach { if(it.draw(draw)) return it.winningValue(draw) }
+            bingoCards.forEach { if (it.draw(draw)) return it.winningValue(draw) }
         }
 
         return input.size
     }
 
     fun part2(input: List<String>): Int {
+        val draws = input[0].split(',').map { it -> it.toInt() }
+        val bingoCards = mutableListOf<BingoCard>()
+        for (i in 1 until input.size) {
+            if (input[i] == "") {
+                bingoCards.add(BingoCard())
+            } else {
+                bingoCards.last().addLine(input[i])
+            }
+        }
+        var disabledCounter = 0
+        draws.forEach { draw ->
+            bingoCards.forEach {
+                if (it.draw(draw)) {
+                    if (bingoCards.size - disabledCounter > 1) {
+                        it.disable()
+                        disabledCounter++
+                    } else {
+                        return it.winningValue(draw)
+                    }
+                }
+            }
+        }
         return input.size
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day${dayNumber}_test")
     check(part1(testInput) == 4512)
-    check(part2(testInput) == 19)
+    check(part2(testInput) == 1924)
 
     val input = readInput("Day${dayNumber}")
     println("Part 1 answer: ${part1(input)}")
@@ -36,15 +58,16 @@ class BingoCard {
     private class Field(val value: Int, var drawn: Boolean = false) {
     }
 
+    private var enabled = true
     private val lines = mutableListOf<MutableList<Field>>()
 
-    fun draw(drawnValue: Int) : Boolean {
+    fun draw(drawnValue: Int): Boolean {
         lines.forEach {
             it.forEach { field ->
                 if (field.value == drawnValue) field.drawn = true
             }
         }
-        return checkForBingo()
+        return enabled && checkForBingo()
     }
 
     private fun checkForBingo(): Boolean {
@@ -52,19 +75,19 @@ class BingoCard {
     }
 
     private fun checkVerticalWins(): Boolean {
-        for(index in 0 until lines[0].size) {
+        for (index in 0 until lines[0].size) {
             var lineDrawCounter = 0
             lines.forEach {
-                if(it[index].drawn) lineDrawCounter++
+                if (it[index].drawn) lineDrawCounter++
             }
-            if(lineDrawCounter == lines.size) return true
+            if (lineDrawCounter == lines.size) return true
         }
         return false
     }
 
     private fun checkHorizontalWins(): Boolean {
         lines.forEach {
-            if(it.count { field -> field.drawn } == it.count()) return true
+            if (it.count { field -> field.drawn } == it.count()) return true
         }
         return false
     }
@@ -92,17 +115,21 @@ class BingoCard {
         lines.add(fieldList)
     }
 
-    fun winningValue(winningDraw: Int): Int {
+    fun winningValue(winningDraw: Int = 1): Int {
         return sumOfUndrawnFields() * winningDraw
     }
 
     private fun sumOfUndrawnFields(): Int {
         var fieldSum = 0
-        for(index in 0 until lines[0].size) {
+        for (index in 0 until lines[0].size) {
             lines.forEach {
-                if(!it[index].drawn) fieldSum += it[index].value
+                if (!it[index].drawn) fieldSum += it[index].value
             }
         }
         return fieldSum
+    }
+
+    fun disable() {
+        enabled = false
     }
 }
