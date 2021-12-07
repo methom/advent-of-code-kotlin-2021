@@ -1,5 +1,3 @@
-import java.lang.Math.abs
-
 fun main() {
     val dayNumber = "07"
 
